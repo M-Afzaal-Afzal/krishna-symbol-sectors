@@ -46,7 +46,7 @@ import {useKeyPressEvent, useMeasure, useSessionStorage} from 'react-use';
 // eslint-disable-next-line
 // import worker from 'workerize-loader!../workers/getDistricts';
 import {Avatar} from '@chakra-ui/react';
-
+import useDarkMode from 'use-dark-mode';
 // const Row = lazy(() => retry(() => import('./Row')));
 
 function Table({
@@ -73,7 +73,8 @@ function Table({
   const symbol = useParams()?.id || null;
 
   const [tableContainerRef, {width: tableWidth}] = useMeasure();
-
+  const darkMode = useDarkMode();
+  console.log(darkMode,'dark mode --------------------------------------------------------------------------------------');
   // const handleSortClick = useCallback(
   //   (statistic) => {
   //     if (sortBy !== statistic) {
@@ -515,7 +516,6 @@ function Table({
           }
 
 
-          {/* This is the first cell which will be empty*/}
 
 
           {
@@ -528,6 +528,7 @@ function Table({
 
               console.log(filteredDataArr, 'filtered data aray');
 
+          {/* This is the first cell which will be empty*/}
               return (
                 <div id={i} className={'row'}>
                   <div className={'cell'}>
@@ -545,7 +546,7 @@ function Table({
                           {tableStatistics.includes(key.trim()) ? (
                             <div key={index} className={'cell'}>
                               <div
-                                style={{color: key.includes('call') ? 'green' : key.includes('put') ? 'red' : 'white'}}>
+                                style={{color: key.includes('call') ? 'green' : key.includes('put') ? 'red' : darkMode.value ? 'white' : 'black'}}>
                                 <div style={{
                                   color: value === 'CALL' ? 'green' : value === 'PUT' ? 'red':'',
                                 }}>

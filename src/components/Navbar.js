@@ -48,10 +48,10 @@ function Navbar({pages, showLanguageSwitcher, setShowLanguageSwitcher}) {
     }
   }, [windowSize.width]);
 
-  const handleLanguageSwitcher = useCallback(() => {
-    // if (expand) setExpand(false);
-    // setShowLanguageSwitcher(!showLanguageSwitcher);
-  }, [expand, showLanguageSwitcher, setExpand, setShowLanguageSwitcher]);
+  // const handleLanguageSwitcher = useCallback(() => {
+  //   // if (expand) setExpand(false);
+  //   // setShowLanguageSwitcher(!showLanguageSwitcher);
+  // }, [expand, showLanguageSwitcher, setExpand, setShowLanguageSwitcher]);
 
   // LOGIN WIHT OAUTH
   const {loginWithRedirect} = useAuth0();
