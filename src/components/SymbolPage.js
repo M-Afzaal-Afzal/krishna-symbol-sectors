@@ -2,11 +2,12 @@ import TableLoader from './loaders/Table';
 import {
   DATA_API_ROOT,
   DISTRICT_START_DATE,
-  DISTRICT_TEST_END_DATE, MAP_STATISTICS,
-  MAP_VIEWS,
-  PRIMARY_STATISTICS,
+  DISTRICT_TEST_END_DATE,
+  // MAP_STATISTICS,
+  // MAP_VIEWS,
+  // PRIMARY_STATISTICS,
   TESTED_EXPIRING_DAYS,
-  UNKNOWN_DISTRICT_KEY,
+  // UNKNOWN_DISTRICT_KEY,
 } from '../constants';
 import useIsVisible from '../hooks/useIsVisible';
 import useStickySWR from '../hooks/useStickySWR';
@@ -23,8 +24,8 @@ import {useMemo, useRef, useState, lazy, Suspense, useEffect} from 'react';
 import {Helmet} from 'react-helmet';
 import {useLocation, useParams} from 'react-router-dom';
 import {useLocalStorage, useSessionStorage, useWindowSize} from 'react-use';
-import useSWR from 'swr';
-import {useTranslation} from 'react-i18next';
+// import useSWR from 'swr';
+// import {useTranslation} from 'react-i18next';
 import FeelingCard from './FeelingCard/FeelingCard';
 
 import {SmileyIcon} from '@primer/octicons-react';
@@ -48,10 +49,10 @@ function Home() {
 
   console.log(symbol,'****************************************************');
 
-  const [regionHighlighted, setRegionHighlighted] = useState({
-    stateCode: 'TT',
-    districtName: null,
-  });
+  // const [regionHighlighted, setRegionHighlighted] = useState({
+  //   stateCode: 'TT',
+  //   districtName: null,
+  // });
 
   const [anchor, setAnchor] = useLocalStorage('anchor', null);
   const [expandTable, setExpandTable] = useLocalStorage('expandTable', false);
@@ -141,7 +142,7 @@ function Home() {
   //   noDistrictDataStates[regionHighlighted.stateCode];
 
   // tabular chart config
-  const [showAllDistricts, setShowAllDistricts] = useState(false);
+  // const [showAllDistricts, setShowAllDistricts] = useState(false);
   // const primaryStatistic = MAP_STATISTICS.includes(mapStatistic)
   //   ? mapStatistic
   //   : 'confirmed';
@@ -562,15 +563,15 @@ function Home() {
                   <TimeseriesExplorer
                     stateCode='TT'
                     {...{
-                      timeseries,
+                      // timeseries,
                       date,
-                      regionHighlighted,
-                      setRegionHighlighted,
-                      anchor,
-                      setAnchor,
+                      // regionHighlighted,
+                      // setRegionHighlighted,
+                      // anchor,
+                      // setAnchor,
                       expandTable,
-                      hideVaccinated,
-                      noRegionHighlightedDistrictData,
+                      // hideVaccinated,
+                      // noRegionHighlightedDistrictData,
                     }}
                   />
                 </Suspense>
@@ -587,15 +588,15 @@ function Home() {
               <Table
                 {...{
                   data,
-                  regionHighlighted,
-                  setRegionHighlighted,
+                  // regionHighlighted,
+                  // setRegionHighlighted,
                   expandTable,
                   setExpandTable,
                   hideDistrictData,
                   hideDistrictTestData,
-                  hideVaccinated,
-                  lastDataDate,
-                  noDistrictDataStates,
+                  // hideVaccinated,
+                  // lastDataDate,
+                  // noDistrictDataStates,
                 }}
               />
             </Suspense>
