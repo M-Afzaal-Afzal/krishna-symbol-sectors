@@ -19,7 +19,10 @@ function Footer() {
 
       <h5>{t('We stand with everyone fighting on the frontlines')}</h5>
 
-      <div className="links">
+      <div style={{
+        display: "flex",
+        justifyContent: 'center',
+      }} className="links">
         <a
           href="https://github.com/covid19india/covid19india-react"
           className="github"

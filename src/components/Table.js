@@ -1,6 +1,6 @@
 import HeaderCell from './HeaderCell';
 // import TableLoader from './loaders/Table';
-import { DistrictIcon} from './snippets/Icons';
+import {DistrictIcon} from './snippets/Icons';
 // import TableDeltaHelper from './snippets/TableDeltaHelper';
 import Tooltip from './Tooltip';
 
@@ -47,6 +47,7 @@ import {useKeyPressEvent, useMeasure, useSessionStorage} from 'react-use';
 // import worker from 'workerize-loader!../workers/getDistricts';
 import {Avatar} from '@chakra-ui/react';
 import useDarkMode from 'use-dark-mode';
+
 // const Row = lazy(() => retry(() => import('./Row')));
 
 function Table({
@@ -57,6 +58,9 @@ function Table({
                  expandTable,
                  setExpandTable,
                  hideDistrictData,
+                 page,
+                 limit,
+                 start,
                  // hideDistrictTestData,
                  // hideVaccinated,
                  // lastDataDate,
@@ -74,7 +78,7 @@ function Table({
 
   const [tableContainerRef, {width: tableWidth}] = useMeasure();
   const darkMode = useDarkMode();
-  console.log(darkMode,'dark mode --------------------------------------------------------------------------------------');
+  // console.log(darkMode, 'dark mode --------------------------------------------------------------------------------------');
   // const handleSortClick = useCallback(
   //   (statistic) => {
   //     if (sortBy !== statistic) {
@@ -210,14 +214,14 @@ function Table({
   }, []);
 
   // useEffect(() => {
-    // const workerInstance = worker();
-    // workerInstance.getDistricts(states);
-    // workerInstance.addEventListener('message', (message) => {
-    //   if (message.data.type !== 'RPC') {
-    //     setAllDistricts(message.data);
-    //     workerInstance.terminate();
-    //   }
-    // });
+  // const workerInstance = worker();
+  // workerInstance.getDistricts(states);
+  // workerInstance.addEventListener('message', (message) => {
+  //   if (message.data.type !== 'RPC') {
+  //     setAllDistricts(message.data);
+  //     workerInstance.terminate();
+  //   }
+  // });
   // }, [tableOption, states]);
 
   // useEffect(() => {
@@ -244,41 +248,43 @@ function Table({
   const queryParams = parseParams(window.location.search);
 
   console.log(queryParams, 'query params are there bhaii,---------------------------------------------------------');
-  console.log(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}`);
+  console.log(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}&_limit=${limit}&_start=${(page-1)* limit}`);
 
   useEffect(() => {
 
 
+    // fetch(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}&limit=${limit}&start=${(page-1)* limit}`)
     fetch(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}`)
       .then(res => res.json())
       .then((data) => {
         // if (!sectors) {
-          setSectors(Object.entries(data));
+        setSectors(Object.entries(data));
         // }
         // console.log(data, 'Sectors are there - ------------------------------------------');
       });
 
-    fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&limit=6&days=90&${new URLSearchParams(queryParams)}`)
+    // fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&limit=6&days=390&${new URLSearchParams(queryParams)}&limit=${limit}&start=${(page-1)* limit}`)
+    fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&limit=6&days=390&${new URLSearchParams(queryParams)}`)
       .then(res => res.json())
       .then((data) => {
         // if (!symbols) {
-          setSymbols(Object.entries(data));
+        setSymbols(Object.entries(data));
         // }
         console.log(data, 'Symbols are there - ------------------------------------------');
       });
 
-    fetch(`https://www.finlytica.com/options-flow?symbol=${symbol}&${new URLSearchParams(queryParams)}`)
+    fetch(`https://www.finlytica.com/options-flow?symbol=${symbol}&${new URLSearchParams(queryParams)}&volume_gte=555`)
       .then(res => res.json())
       .then((data) => {
         // if (!symbolsPageTableData) {
 
-          setSymbolsPageTableData(data);
+        setSymbolsPageTableData(data);
         // }
         console.log(data, 'Symbols pag table data is here are there - -----------ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-------------------------------');
       });
 
 
-  }, [sortBy, isAscending, window.location.search]);
+  }, [sortBy, isAscending, window.location.search,page]);
 
   // const handlePageClick = (direction) => {
   //   if (Math.abs(direction) === 1) {
@@ -516,8 +522,6 @@ function Table({
           }
 
 
-
-
           {
             symbol && symbolsPageTableData && symbolsPageTableData.map((data, i) => {
 
@@ -528,7 +532,8 @@ function Table({
 
               console.log(filteredDataArr, 'filtered data aray');
 
-          {/* This is the first cell which will be empty*/}
+              {/* This is the first cell which will be empty*/
+              }
               return (
                 <div id={i} className={'row'}>
                   <div className={'cell'}>
@@ -548,19 +553,19 @@ function Table({
                               <div
                                 style={{color: key.includes('call') ? 'green' : key.includes('put') ? 'red' : darkMode.value ? 'white' : 'black'}}>
                                 <div style={{
-                                  color: value === 'CALL' ? 'green' : value === 'PUT' ? 'red':'',
+                                  color: value === 'CALL' ? 'green' : value === 'PUT' ? 'red' : '',
                                 }}>
                                   <div style={{
-                                    color: value === 'BLOCK' ? 'green' : value === 'SWEEP' ? 'rgb(255, 193, 7)':'',
+                                    color: value === 'BLOCK' ? 'green' : value === 'SWEEP' ? 'rgb(255, 193, 7)' : '',
                                   }}>
-                                  {
-                                    key.includes('implied_volatility') ? Math.round(data[key]*100) + '%' :
-                                      (key === 'volume' || key === 'premium' || key === 'mkt_cap' || key === 'oi')
-                                        ?
-                                        abbreviateNumber((data[key]) )
-                                        :
-                                        (data[key])
-                                  }
+                                    {
+                                      key.includes('implied_volatility') ? Math.round(data[key] * 100) + '%' :
+                                        (key === 'volume' || key === 'premium' || key === 'mkt_cap' || key === 'oi')
+                                          ?
+                                          abbreviateNumber((data[key]))
+                                          :
+                                          (data[key])
+                                    }
                                   </div>
                                 </div>
                               </div>

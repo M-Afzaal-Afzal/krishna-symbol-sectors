@@ -66,14 +66,14 @@ function Home() {
   const [dates, setDates] = useState(null);
   const location = useLocation();
 
-  const {data: timeseries} = useStickySWR(
-    `${DATA_API_ROOT}/timeseries.min.json`,
-    fetcher,
-    {
-      revalidateOnMount: true,
-      refreshInterval: 100000,
-    },
-  );
+  // const {data: timeseries} = useStickySWR(
+  //   `${DATA_API_ROOT}/timeseries.min.json`,
+  //   fetcher,
+  //   {
+  //     revalidateOnMount: true,
+  //     refreshInterval: 100000,
+  //   },
+  // );
 
   const {data} = useStickySWR(
     `https://www.finlytica.com/options-flow-summary-sector?days=60&sort=totalpremium:asc&putcountpercent_gte=5&limit=10`,
@@ -88,14 +88,14 @@ function Home() {
   const isVisible = useIsVisible(homeRightElement);
   const {width} = useWindowSize();
 
-  const hideDistrictData = date !== '' && date < DISTRICT_START_DATE;
-  const hideDistrictTestData =
-    date === '' ||
-    date >
-    formatISO(
-      addDays(parseIndiaDate(DISTRICT_TEST_END_DATE), TESTED_EXPIRING_DAYS),
-      {representation: 'date'},
-    );
+  // const hideDistrictData = date !== '' && date < DISTRICT_START_DATE;
+  // const hideDistrictTestData =
+  //   date === '' ||
+  //   date >
+  //   formatISO(
+  //     addDays(parseIndiaDate(DISTRICT_TEST_END_DATE), TESTED_EXPIRING_DAYS),
+  //     {representation: 'date'},
+  //   );
 
   // const hideVaccinated =
   //   getStatistic(data?.['TT'], 'total', 'vaccinated') === 0;
@@ -159,9 +159,9 @@ function Home() {
   //   return styles;
   // }, []);
 
-  const stateCode = 'MH';
+  // const stateCode = 'MH';
 
-  const stateData = data?.[stateCode];
+  // const stateData = data?.[stateCode];
 
   // const gridRowCount = useMemo(() => {
   //   if (!stateData) return;
@@ -230,25 +230,28 @@ function Home() {
 
   useEffect(() => {
 
-    if (!cardsData || !symbolSectorStats) {
-
-
+    // if (!dates) {
       fetch('https://www.finlytica.com/options-flow')
         .then(res => res.json())
         .then(data => {
           const dates = data.map(dataItem => dataItem.created_date);
-          if (!dates) {
+          // if (!dates) {
             setDates(dates);
-          }
+            console.log(dates,'------------------------------------------ dates from inside ----------------------------------------------------');
+          // }
         });
 
-      fetch('https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01')
+    // }
+
+    if (!cardsData || !symbolSectorStats) {
+
+      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01&symbol=${symbol}`)
         .then(res => res.json())
         .then(res => {
           const data = res.data;
 
 
-          console.log(data, 'data is there');
+          // console.log(data, 'data is there');
 
           // console.log(data, 'data is there');
 
@@ -330,7 +333,7 @@ function Home() {
           }
 
 
-          console.log(cardsDataArr, 'cards data array');
+          // console.log(cardsDataArr, 'cards data array');
 
         });
 
@@ -359,6 +362,8 @@ function Home() {
 
             <>
               {/*{!timeseries && <div style={{minHeight: '61px'}} />}*/}
+
+              {/* These actions are for date */}
               {dates && (
                 <Suspense fallback={<div style={{minHeight: '61px'}} />}>
                   <Actions
@@ -558,24 +563,20 @@ function Home() {
                 </div>
               )}
 
-              {timeseries && (
-                <Suspense fallback={<div style={{height: '50rem'}} />}>
-                  <TimeseriesExplorer
-                    stateCode='TT'
-                    {...{
-                      // timeseries,
-                      date,
-                      // regionHighlighted,
-                      // setRegionHighlighted,
-                      // anchor,
-                      // setAnchor,
-                      expandTable,
-                      // hideVaccinated,
-                      // noRegionHighlightedDistrictData,
-                    }}
-                  />
-                </Suspense>
-              )}
+              {/*{timeseries && (*/}
+              {/*  <Suspense fallback={<div style={{height: '50rem'}} />}>*/}
+              {/*    <TimeseriesExplorer*/}
+              {/*      stateCode='TT'*/}
+              {/*      {...{*/}
+              {/*        date,*/}
+              {/*        anchor,*/}
+              {/*        setAnchor,*/}
+              {/*        expandTable,*/}
+              {/*        */}
+              {/*      }}*/}
+              {/*    />*/}
+              {/*  </Suspense>*/}
+              {/*)}*/}
             </>
           )}
         </div>
@@ -592,8 +593,8 @@ function Home() {
                   // setRegionHighlighted,
                   expandTable,
                   setExpandTable,
-                  hideDistrictData,
-                  hideDistrictTestData,
+                  // hideDistrictData,
+                  // hideDistrictTestData,
                   // hideVaccinated,
                   // lastDataDate,
                   // noDistrictDataStates,

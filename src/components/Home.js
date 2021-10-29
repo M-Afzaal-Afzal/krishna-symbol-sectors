@@ -32,6 +32,8 @@ import {useLocalStorage, useSessionStorage, useWindowSize} from 'react-use';
 // import useSWR from 'swr';
 // import {useTranslation} from 'react-i18next';
 import FeelingCard from './FeelingCard/FeelingCard';
+import {Pagination} from '@material-ui/lab';
+import value from 'd3-interpolate/src/value';
 
 // import {SmileyIcon} from '@primer/octicons-react';
 
@@ -72,7 +74,7 @@ function Home() {
 
   const [date, setDate] = useState('');
   const [dates, setDates] = useState([]);
-  const location = useLocation();
+  // const location = useLocation();
 
   // const {data: timeseries} = useStickySWR(
   //   `${DATA_API_ROOT}/timeseries.min.json`,
@@ -150,7 +152,7 @@ function Home() {
   //   noDistrictDataStates[regionHighlighted.stateCode];
 
   // tabular chart config
-  const [showAllDistricts, setShowAllDistricts] = useState(false);
+  // const [showAllDistricts, setShowAllDistricts] = useState(false);
 
   // const primaryStatistic = MAP_STATISTICS.includes(mapStatistic)
   //   ? mapStatistic
@@ -243,6 +245,19 @@ function Home() {
   //   setCurrentPage(selectedPage);
   // }
 
+  // Limit to find data
+  const [limit,setLimit] = useState(10);
+
+  //
+  const [page,setPage] = useState(1);
+
+  // pages to skip
+  const [start,setStart] = useState(1);
+
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
+
   useEffect(() => {
 
     if (!cardsData || !symbolSectorStats) {
@@ -261,13 +276,13 @@ function Home() {
           }
         });
 
-      fetch('https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01')
+      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01`)
         .then(res => res.json())
         .then(res => {
           const data = res.data;
 
 
-          console.log(data, 'data is there');
+          // console.log(data, 'data is there');
 
           // console.log(data, 'data is there');
 
@@ -348,7 +363,7 @@ function Home() {
             setCardsData(cardsDataArr);
           }
 
-          console.log(cardsDataArr, 'cards data array');
+          // console.log(cardsDataArr, 'cards data array');
 
         });
 
@@ -427,7 +442,7 @@ function Home() {
 
         <div
           className={classnames('home-right')}
-          // ref={homeRightElement}
+          ref={homeRightElement}
           style={{minHeight: '4rem'}}
         >
 
@@ -589,6 +604,9 @@ function Home() {
             <Suspense fallback={<TableLoader />}>
               <Table
                 {...{
+                  page,
+                  limit,
+                  start,
                   data,
                   // regionHighlighted,
                   // setRegionHighlighted,
@@ -613,21 +631,21 @@ function Home() {
         </div>
 
 
-        {/*<div>*/}
-        {/*  <Pagination count={10} />*/}
-        {/*</div>*/}
+        <div>
+          <Pagination page={page} onChange={handleChange}  color={'primary'} count={10} />
+        </div>
 
-      {/*  <ReactPaginate*/}
-      {/*    previousLabel={"← Previous"}*/}
-      {/*    nextLabel={"Next →"}*/}
-      {/*    pageCount={20}*/}
-      {/*    onPageChange={handlePageClick}*/}
-      {/*    containerClassName={"pagination"}*/}
-      {/*    previousLinkClassName={"pagination__link"}*/}
-      {/*    nextLinkClassName={"pagination__link"}*/}
-      {/*    disabledClassName={"pagination__link--disabled"}*/}
-      {/*    activeClassName={"pagination__link--active"}*/}
-      {/*  />*/}
+        {/*<ReactPaginate*/}
+        {/*  previousLabel={"← Previous"}*/}
+        {/*  nextLabel={"Next →"}*/}
+        {/*  pageCount={20}*/}
+        {/*  onPageChange={handlePageClick}*/}
+        {/*  containerClassName={"pagination"}*/}
+        {/*  previousLinkClassName={"pagination__link"}*/}
+        {/*  nextLinkClassName={"pagination__link"}*/}
+        {/*  disabledClassName={"pagination__link--disabled"}*/}
+        {/*  activeClassName={"pagination__link--active"}*/}
+        {/*/>*/}
 
       </div>
 
