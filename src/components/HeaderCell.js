@@ -34,7 +34,7 @@ function StateHeaderCell({handleSort, statistic,sortBy,isAscending}) {
     [handleSort]
   );
 
-  console.log(statistic.split('percent'),'Here is the statistic, hhhhhhhhhhhhhhhhhhhhhhhhh');
+  // console.log(statistic.split('percent'),'Here is the statistic, hhhhhhhhhhhhhhhhhhhhhhhhh');
 
   const statisticConfig = STATISTIC_CONFIGS[statistic];
 

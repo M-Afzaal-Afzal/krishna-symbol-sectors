@@ -27,13 +27,13 @@ import classnames from 'classnames';
 // import {addDays, formatISO, max} from 'date-fns';
 import {useMemo, useRef, useState, lazy, Suspense, useEffect} from 'react';
 import {Helmet} from 'react-helmet';
-import {useLocation, useParams} from 'react-router-dom';
+// import {useLocation, useParams} from 'react-router-dom';
 import {useLocalStorage, useSessionStorage, useWindowSize} from 'react-use';
 // import useSWR from 'swr';
 // import {useTranslation} from 'react-i18next';
 import FeelingCard from './FeelingCard/FeelingCard';
 import {Pagination} from '@material-ui/lab';
-import value from 'd3-interpolate/src/value';
+// import value from 'd3-interpolate/src/value';
 
 // import {SmileyIcon} from '@primer/octicons-react';
 
@@ -55,6 +55,19 @@ const Table = lazy(() => retry(() => import('./Table')));
 // import { useQueryParam, NumberParam, StringParam } from 'use-query-params';
 
 function Home() {
+
+  const [symbol,setSymbol] = useState(null);
+  const [sector,setSector] = useState(null);
+
+  const symbolHandler = (val) => {
+    setSymbol(val);
+    setSector(null);
+  }
+
+  const sectorHandler = (val) => {
+    setSector(val);
+    setSymbol(null);
+  }
 
   // Query Parameters for filtering the data
   // const [] = useQueryParam('')
@@ -98,140 +111,8 @@ function Home() {
   const isVisible = useIsVisible(homeRightElement);
   const {width} = useWindowSize();
 
-  // const hideDistrictData = date !== '' && date < DISTRICT_START_DATE;
-  // const hideDistrictTestData =
-  //   date === '' ||
-  //   date >
-  //   formatISO(
-  //     addDays(parseIndiaDate(DISTRICT_TEST_END_DATE), TESTED_EXPIRING_DAYS),
-  //     {representation: 'date'},
-  //   );
 
-  // const hideVaccinated =
-  //   getStatistic(data?.['TT'], 'total', 'vaccinated') === 0;
 
-  // const lastDataDate = useMemo(() => {
-  //   const updatedDates = [
-  //     data?.['TT']?.meta?.date,
-  //     data?.['TT']?.meta?.tested?.date,
-  //     data?.['TT']?.meta?.vaccinated?.date,
-  //   ].filter((date) => date);
-  //   return updatedDates.length > 0
-  //     ? formatISO(max(updatedDates.map((date) => parseIndiaDate(date))), {
-  //       representation: 'date',
-  //     })
-  //     : null;
-  // }, [data]);
-
-  // const noDistrictDataStates = useMemo(
-  //   () =>
-  //     // Heuristic: All cases are in Unknown
-  //     Object.entries(data || {}).reduce((res, [stateCode, stateData]) => {
-  //       res[stateCode] = !!(
-  //         stateData?.districts &&
-  //         stateData.districts?.[UNKNOWN_DISTRICT_KEY] &&
-  //         PRIMARY_STATISTICS.every(
-  //           (statistic) =>
-  //             getStatistic(stateData, 'total', statistic) ===
-  //             getStatistic(
-  //               stateData.districts[UNKNOWN_DISTRICT_KEY],
-  //               'total',
-  //               statistic,
-  //             ),
-  //         )
-  //       );
-  //       return res;
-  //     }, {}),
-  //   [data],
-  // );
-
-  // const noRegionHighlightedDistrictData =
-  //   regionHighlighted?.stateCode &&
-  //   regionHighlighted?.districtName &&
-  //   regionHighlighted.districtName !== UNKNOWN_DISTRICT_KEY &&
-  //   noDistrictDataStates[regionHighlighted.stateCode];
-
-  // tabular chart config
-  // const [showAllDistricts, setShowAllDistricts] = useState(false);
-
-  // const primaryStatistic = MAP_STATISTICS.includes(mapStatistic)
-  //   ? mapStatistic
-  //   : 'confirmed';
-
-  // const trail = useMemo(() => {
-  //   const styles = [];
-  //
-  //   [0, 0, 0, 0].map((element, index) => {
-  //     styles.push({
-  //       animationDelay: `${index * 250}ms`,
-  //     });
-  //     return null;
-  //   });
-  //   return styles;
-  // }, []);
-
-  // const stateCode = 'MH';
-
-  // const stateData = data?.[stateCode];
-
-  // const gridRowCount = useMemo(() => {
-  //   if (!stateData) return;
-  //   const gridColumnCount = window.innerWidth >= 540 ? 3 : 2;
-  //   const districtCount = stateData?.districts
-  //     ? Object.keys(stateData.districts).filter(
-  //       (districtName) => districtName !== 'Unknown',
-  //     ).length
-  //     : 0;
-  //   const gridRowCount = Math.ceil(districtCount / gridColumnCount);
-  //   return gridRowCount;
-  // }, [stateData]);
-
-  // const noDistrictData = useMemo(() => {
-  //   // Heuristic: All cases are in Unknown
-  //   return !!(
-  //     stateData?.districts &&
-  //     stateData.districts?.[UNKNOWN_DISTRICT_KEY] &&
-  //     PRIMARY_STATISTICS.every(
-  //       (statistic) =>
-  //         getStatistic(stateData, 'total', statistic) ===
-  //         getStatistic(
-  //           stateData.districts[UNKNOWN_DISTRICT_KEY],
-  //           'total',
-  //           statistic,
-  //         ),
-  //     )
-  //   );
-  // }, [stateData]);
-
-  // const districts = Object.keys(
-  //   ((!noDistrictData || !statisticConfig.hasPrimary) &&
-  //     stateData?.districts) ||
-  //   {},
-  // );
-
-  // const handleSort = (districtNameA, districtNameB) => {
-  //   const districtA = stateData.districts[districtNameA];
-  //   const districtB = stateData.districts[districtNameB];
-  //   return (
-  //     getStatistic(districtB, 'total', mapStatistic) -
-  //     getStatistic(districtA, 'total', mapStatistic)
-  //   );
-  // };
-
-  // const lookback = showAllDistricts ? (window.innerWidth >= 540 ? 10 : 8) : 6;
-
-  // const {error: timeseriesResponseError} = useSWR(
-  //   `${DATA_API_ROOT}/timeseries-${stateCode}.min.json`,
-  //   fetcher,
-  //   {
-  //     revalidateOnMount: true,
-  //     refreshInterval: 100000,
-  //   },
-  // );
-
-  // const toggleShowAllDistricts = () => {
-  //   setShowAllDistricts(!showAllDistricts);
-  // };
 
   //CARDS SETUP
 
@@ -260,23 +141,20 @@ function Home() {
 
   useEffect(() => {
 
-    if (!cardsData || !symbolSectorStats) {
-
-
-      fetch('https://www.finlytica.com/options-flow')
+      fetch(`https://www.finlytica.com/options-flow?${symbol ? `symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
         .then(res => res.json())
         .then(data => {
           const dates = data.map(dataItem => dataItem.created_date);
 
-          console.log(dates,'dates from outside');
+          // console.log(dates,'dates from outside');
 
           if (dates.length) {
             setDates(dates);
-            console.log('dates from inside');
+            // console.log('dates from inside');
           }
         });
 
-      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01`)
+      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
         .then(res => res.json())
         .then(res => {
           const data = res.data;
@@ -355,21 +233,16 @@ function Home() {
             }
           });
 
-          if (!symbolSectorStats) {
             setSymbolSectorStats(data);
-          }
 
-          if (!cardsData) {
             setCardsData(cardsDataArr);
-          }
 
           // console.log(cardsDataArr, 'cards data array');
 
         });
 
-    }
 
-  }, []);
+  }, [symbol,sector]);
 
   return (
     <>
@@ -385,7 +258,7 @@ function Home() {
         <div className={classnames('home-left')}>
           <div className='header'>
             <Suspense fallback={<div />}>
-              <Search />
+              <Search symbolHandler={symbolHandler} sectorHandler={sectorHandler} />
             </Suspense>
 
             {/*{!data && !timeseries && <div style={{height: '60rem'}} />}*/}
@@ -608,6 +481,10 @@ function Home() {
                   limit,
                   start,
                   data,
+                  symbol,
+                  sector,
+                  sectorHandler,
+                  symbolHandler,
                   // regionHighlighted,
                   // setRegionHighlighted,
                   expandTable,

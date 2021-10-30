@@ -47,6 +47,7 @@ import {useKeyPressEvent, useMeasure, useSessionStorage} from 'react-use';
 // import worker from 'workerize-loader!../workers/getDistricts';
 import {Avatar} from '@chakra-ui/react';
 import useDarkMode from 'use-dark-mode';
+// import value from 'd3-interpolate/src/value';
 
 // const Row = lazy(() => retry(() => import('./Row')));
 
@@ -60,12 +61,21 @@ function Table({
                  hideDistrictData,
                  page,
                  limit,
+                 symbol: userSelectedSymbol,
+                 sector: userSelectedSector,
+                 symbolHandler,
+                 sectorHandler,
                  start,
                  // hideDistrictTestData,
                  // hideVaccinated,
                  // lastDataDate,
                  // noDistrictDataStates,
                }) {
+
+  const isHomePage = Boolean(!useParams()?.id);
+
+  // console.log(isHomePage,`is home page -----------------------------------------------------`);
+
   const {t} = useTranslation();
   // const [sortData, setSortData] = useSessionStorage('sortData', {
   //   sortColumn: 'confirmed',
@@ -74,7 +84,16 @@ function Table({
   // });
   // const [page, setPage] = useState(0);
   // const [delta7Mode, setDelta7Mode] = useState(false);
-  const symbol = useParams()?.id || null;
+  const [symbol, setSymbol] = useState(useParams()?.id || userSelectedSymbol || null);
+  const [sector, setSector] = useState(null);
+
+  const changeSymbolHandler = (val) => {
+    setSymbol(val);
+  };
+
+  const changeSectorHandler = (val) => {
+    setSector(val);
+  };
 
   const [tableContainerRef, {width: tableWidth}] = useMeasure();
   const darkMode = useDarkMode();
@@ -126,86 +145,7 @@ function Table({
   // const [isPerLakh, setIsPerLakh] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
 
-  console.log(tableOption, 'table option is this waoo');
-
-  // const getTableStatistic = useCallback(
-  //   (data, statistic, type) => {
-  //     const statisticConfig = STATISTIC_CONFIGS[statistic];
-  //     if (type == 'total' && statisticConfig?.onlyDelta7) {
-  //       type = 'delta7';
-  //     }
-  //
-  //     if (statisticConfig?.showDelta && type === 'total' && delta7Mode) {
-  //       type = 'delta7';
-  //     }
-  //
-  //     return getStatistic(data, type, statistic, {
-  //       expiredDate: lastDataDate,
-  //       normalizedByPopulationPer: isPerLakh ? 'lakh' : null,
-  //     });
-  //   },
-  //   [isPerLakh, lastDataDate, delta7Mode],
-  // );
-
-  // const districts = useMemo(() => {
-  //   if (!isPerLakh) {
-  //     return allDistricts;
-  //   } else {
-  //     return Object.keys(allDistricts || {})
-  //       .filter(
-  //         (districtKey) =>
-  //           getStatistic(allDistricts[districtKey], 'total', 'population') > 0,
-  //       )
-  //       .reduce((res, districtKey) => {
-  //         res[districtKey] = allDistricts[districtKey];
-  //         return res;
-  //       }, {});
-  //   }
-  // }, [isPerLakh, allDistricts]);
-
-  // const numPages = Math.ceil(
-  //   Object.keys(districts || {}).length / DISTRICT_TABLE_COUNT,
-  // );
-
-  // const sortingFunction = useCallback(
-  //   (regionKeyA, regionKeyB) => {
-  //     if (sortData.sortColumn !== 'regionName') {
-  //       const statisticConfig = STATISTIC_CONFIGS[sortData.sortColumn];
-  //       const dataType =
-  //         sortData.delta && statisticConfig?.showDelta ? 'delta' : 'total';
-  //
-  //       const statisticA = getTableStatistic(
-  //         districts?.[regionKeyA] || states[regionKeyA],
-  //         sortData.sortColumn,
-  //         dataType,
-  //       );
-  //       const statisticB = getTableStatistic(
-  //         districts?.[regionKeyB] || states[regionKeyB],
-  //         sortData.sortColumn,
-  //         dataType,
-  //       );
-  //       return sortData.isAscending
-  //         ? statisticA - statisticB
-  //         : statisticB - statisticA;
-  //     } else {
-  //       const regionNameA =
-  //         districts?.[regionKeyA]?.districtName || STATE_NAMES[regionKeyA];
-  //       const regionNameB =
-  //         districts?.[regionKeyB]?.districtName || STATE_NAMES[regionKeyB];
-  //       return sortData.isAscending
-  //         ? regionNameA.localeCompare(regionNameB)
-  //         : regionNameB.localeCompare(regionNameA);
-  //     }
-  //   },
-  //   [
-  //     districts,
-  //     getTableStatistic,
-  //     sortData.delta,
-  //     sortData.isAscending,
-  //     sortData.sortColumn,
-  //     states,
-  //   ],
-  // );
+  // console.log(tableOption, 'table option is this waoo');
 
   const _setTableOption = useCallback(() => {
     setTableOption((prevTableOption) =>
@@ -213,22 +153,13 @@ function Table({
     );
   }, []);
 
-  // useEffect(() => {
-  // const workerInstance = worker();
-  // workerInstance.getDistricts(states);
-  // workerInstance.addEventListener('message', (message) => {
-  //   if (message.data.type !== 'RPC') {
-  //     setAllDistricts(message.data);
-  //     workerInstance.terminate();
-  //   }
-  // });
-  // }, [tableOption, states]);
 
   // useEffect(() => {
   //   setPage((p) => Math.max(0, Math.min(p, numPages - 1)));
   // }, [numPages]);
 
   const [sectors, setSectors] = useState(null);
+  const [sectorsToShow, setSectorsToShow] = useState(null);
   const [symbols, setSymbols] = useState(null);
 
   const [symbolsPageTableData, setSymbolsPageTableData] = useState(null);
@@ -247,44 +178,83 @@ function Table({
   // getting the query parameters object
   const queryParams = parseParams(window.location.search);
 
-  console.log(queryParams, 'query params are there bhaii,---------------------------------------------------------');
-  console.log(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}&_limit=${limit}&_start=${(page-1)* limit}`);
-
   useEffect(() => {
 
+    // console.log(`test it `, `https://www.finlytica.com/options-flow?${symbol ? `&symbol=${symbol}` : ''}${userSelectedSector ? `&sector=${userSelectedSector}` : ''}&${new URLSearchParams(queryParams)}`);
 
     // fetch(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}&limit=${limit}&start=${(page-1)* limit}`)
-    fetch(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}`)
+    fetch(`https://www.finlytica.com/options-flow-summary-sector?start_date=2021-07-28&end_date=2021-08-01&sort=${sortBy}:${isAscending ? 'asc' : 'desc'}${userSelectedSymbol ? `&symbol=${userSelectedSymbol}` : ''}${userSelectedSector ? `&sector=${userSelectedSector}` : ''}&putcountpercent_gte=5&${new URLSearchParams(queryParams)}`)
       .then(res => res.json())
       .then((data) => {
         // if (!sectors) {
         setSectors(Object.entries(data));
+
+        if (!sectorsToShow) {
+          setSectorsToShow(Object.entries(data));
+        }
         // }
         // console.log(data, 'Sectors are there - ------------------------------------------');
       });
 
+
     // fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&limit=6&days=390&${new URLSearchParams(queryParams)}&limit=${limit}&start=${(page-1)* limit}`)
-    fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}&limit=6&days=390&${new URLSearchParams(queryParams)}`)
+    fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}${userSelectedSymbol ? `&symbol=${userSelectedSymbol}` : ''}${userSelectedSector ? `&sector=${userSelectedSector}` : ''}&limit=6&days=390&${new URLSearchParams(queryParams)}`)
       .then(res => res.json())
       .then((data) => {
         // if (!symbols) {
         setSymbols(Object.entries(data));
         // }
-        console.log(data, 'Symbols are there - ------------------------------------------');
+        // console.log(data, 'Symbols are there - ------------------------------------------');
       });
 
-    fetch(`https://www.finlytica.com/options-flow?symbol=${symbol}&${new URLSearchParams(queryParams)}&volume_gte=555`)
+
+    fetch(`https://www.finlytica.com/options-flow?${userSelectedSymbol ? `&symbol=${userSelectedSymbol}` : ''}${userSelectedSector ? `&sector=${userSelectedSector}` : ''}&${new URLSearchParams(queryParams)}&volume_gte=555`)
       .then(res => res.json())
       .then((data) => {
         // if (!symbolsPageTableData) {
 
         setSymbolsPageTableData(data);
         // }
-        console.log(data, 'Symbols pag table data is here are there - -----------ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-------------------------------');
+        // console.log(data, 'Symbols pag table data is here are there - -----------ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-------------------------------');
       });
 
 
-  }, [sortBy, isAscending, window.location.search,page]);
+  }, [sortBy, isAscending, userSelectedSymbol, userSelectedSector]);
+
+
+  const sectorClickHandler = (sector, symbol) => {
+
+    symbolHandler(null);
+    sectorHandler(sector);
+    changeSymbolHandler(null);
+    changeSectorHandler(sector);
+
+    if (isHomePage) {
+
+      fetch(`https://www.finlytica.com/options-flow-summary-symbol?sort=${sortBy}:${isAscending ? 'asc' : 'desc'}${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}&limit=6&days=390&${new URLSearchParams(queryParams)}`)
+        .then(res => res.json())
+        .then((data) => {
+          // if (!symbols) {
+          setSymbols(Object.entries(data));
+          // }
+          // console.log(data, 'Symbols are there - ------------------------------------------');
+        });
+    }
+
+    if (!isHomePage) {
+      fetch(`https://www.finlytica.com/options-flow?${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}&${new URLSearchParams(queryParams)}&volume_gte=555`)
+        .then(res => res.json())
+        .then((data) => {
+          // if (!symbolsPageTableData) {
+
+          setSymbolsPageTableData(data);
+          // }
+          // console.log(data, 'Symbols pag table data is here are there - -----------ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-------------------------------');
+        });
+    }
+
+
+  };
 
   // const handlePageClick = (direction) => {
   //   if (Math.abs(direction) === 1) {
@@ -303,7 +273,7 @@ function Table({
   });
 
 
-  const tableStatistics = symbol ? TABLE_STATISTICS_SYMBOL : TABLE_STATISTICS_EXPANDED;
+  const tableStatistics = !isHomePage ? TABLE_STATISTICS_SYMBOL : TABLE_STATISTICS_EXPANDED;
 
 
   const showDistricts = tableOption === 'Symbols' && !hideDistrictData;
@@ -317,6 +287,10 @@ function Table({
   useKeyPressEvent('?', () => {
     setIsInfoVisible(!isInfoVisible);
   });
+
+  useEffect(() => {
+    console.log(`**************************************************************`, userSelectedSector, userSelectedSymbol, `****************************************************************`);
+  }, [symbol, userSelectedSymbol, userSelectedSector]);
 
   return (
     <div className='Table'>
@@ -370,8 +344,13 @@ function Table({
               <div className='helper-top'>
                 <div style={{display: 'flex', flexDirection: 'column'}} className='helper-left'>
                   {
-                    sectors && sectors.map(([sector, _]) => (
-                      <div key={sector} style={{width: '100%', display: 'block'}} className='info-item'>
+                    sectorsToShow && sectorsToShow?.map(([sector, _]) => (
+                      <div key={sector}
+                           onClick={() => {
+                             sectorClickHandler(sector, null);
+                             console.log(sector, 'sector is clicked');
+                           }}
+                           style={{width: '100%', display: 'block'}} className='info-item'>
                         <p className={'sectors'} style={{width: '100%', margin: '4px 0'}}>{sector}</p>
                       </div>
                     ))
@@ -383,10 +362,10 @@ function Table({
 
               </div>
 
-              <h5 className='text'>
-                {t('Compiled from State Govt. numbers')},{' '}
-                <Link to='/about'>{t('know more')}!</Link>
-              </h5>
+              {/*<h5 className='text'>*/}
+              {/*  {t('Compiled from State Govt. numbers')},{' '}*/}
+              {/*  <Link to='/about'>{t('know more')}!</Link>*/}
+              {/*</h5>*/}
             </animated.div>
           ),
       )}
@@ -401,7 +380,7 @@ function Table({
 
           <div className='row heading'>
             {
-              !symbol ? (
+              tableOption && isHomePage ? (
                 <div
                   className='cell heading'
                   // todo we have to manage the sort
@@ -425,13 +404,7 @@ function Table({
                   {/*  </div>*/}
                   {/*)}*/}
                 </div>
-              ) : (
-                <div className={'cell heading'}>
-                  <div>
-                    {symbol}
-                  </div>
-                </div>
-              )
+              ) : null
             }
 
 
@@ -451,7 +424,7 @@ function Table({
           </div>
 
           {
-            !symbol && sectors && tableOption === 'Sectors' && sectors.map(([propertyName, propertyObj], index) => {
+            isHomePage && sectors && tableOption === 'Sectors' && sectors.map(([propertyName, propertyObj], index) => {
 
               return (
                 <div key={index} className={'row'}>
@@ -483,7 +456,7 @@ function Table({
           }
 
           {
-            !symbol && symbols && tableOption === 'Symbols' && symbols.map(([propertyName, propertyObj], index) => {
+            isHomePage && symbols && tableOption === 'Symbols' && symbols.map(([propertyName, propertyObj], index) => {
 
               return (
                 <div key={index} className={'row'}>
@@ -523,14 +496,18 @@ function Table({
 
 
           {
-            symbol && symbolsPageTableData && symbolsPageTableData.map((data, i) => {
+            !isHomePage && symbolsPageTableData && symbolsPageTableData.map((data, i) => {
 
 
               const dataArr = Object.entries(data);
 
               const filteredDataArr = dataArr.filter(([key, value], index) => tableStatistics.includes(key) && [key, value]);
 
-              console.log(filteredDataArr, 'filtered data aray');
+              // console.log(dataArr, ' data aray');
+
+              // console.log(tableStatistics,'table statistics');
+              //
+              // console.log(filteredDataArr, 'filtered data aray');
 
               {/* This is the first cell which will be empty*/
               }
@@ -543,7 +520,7 @@ function Table({
                   {
                     filteredDataArr.map(([key, value], index) => {
 
-                      console.log(key, value, 'key value');
+                      // console.log(key, value, 'key value');
 
                       return (
 

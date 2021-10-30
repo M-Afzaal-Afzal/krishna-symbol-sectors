@@ -73,12 +73,12 @@ const App = () => {
     //   displayName: 'Login',
     //   showInNavbar: true,
     // },
-    {
-      pageLink: '/alert',
-      view: Alert,
-      displayName: 'Create Alert',
-      showInNavbar: true,
-    },
+    // {
+    //   pageLink: '/alert',
+    //   view: Alert,
+    //   displayName: 'Create Alert',
+    //   showInNavbar: true,
+    // },
     // {
     //   pageLink: '/resources',
     //   view: Resources,

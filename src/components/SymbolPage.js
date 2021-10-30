@@ -43,9 +43,21 @@ const TimeseriesExplorer = lazy(() =>
   retry(() => import('./TimeseriesExplorer')),
 );
 
-function Home() {
+function SymbolPage() {
 
-  const symbol = useParams()?.id || '';
+
+  const [symbol,setSymbol] = useState( useParams()?.id || '');
+  const [sector,setSector] = useState(null);
+
+  const symbolHandler = (val) => {
+    setSymbol(val);
+    setSector(null);
+  }
+
+  const sectorHandler = (val) => {
+    setSector(val);
+    setSymbol(null);
+  }
 
   console.log(symbol,'****************************************************');
 
@@ -76,7 +88,7 @@ function Home() {
   // );
 
   const {data} = useStickySWR(
-    `https://www.finlytica.com/options-flow-summary-sector?days=60&sort=totalpremium:asc&putcountpercent_gte=5&limit=10`,
+    `https://www.finlytica.com/options-flow-summary-sector?days=60&sort=totalpremium:asc&putcountpercent_gte=5&limit=10${symbol ? `&symbol=${symbol}` : ''}`,
     fetcher,
     {
       revalidateOnMount: true,
@@ -88,141 +100,6 @@ function Home() {
   const isVisible = useIsVisible(homeRightElement);
   const {width} = useWindowSize();
 
-  // const hideDistrictData = date !== '' && date < DISTRICT_START_DATE;
-  // const hideDistrictTestData =
-  //   date === '' ||
-  //   date >
-  //   formatISO(
-  //     addDays(parseIndiaDate(DISTRICT_TEST_END_DATE), TESTED_EXPIRING_DAYS),
-  //     {representation: 'date'},
-  //   );
-
-  // const hideVaccinated =
-  //   getStatistic(data?.['TT'], 'total', 'vaccinated') === 0;
-
-  // const lastDataDate = useMemo(() => {
-  //   const updatedDates = [
-  //     data?.['TT']?.meta?.date,
-  //     data?.['TT']?.meta?.tested?.date,
-  //     data?.['TT']?.meta?.vaccinated?.date,
-  //   ].filter((date) => date);
-  //   return updatedDates.length > 0
-  //     ? formatISO(max(updatedDates.map((date) => parseIndiaDate(date))), {
-  //       representation: 'date',
-  //     })
-  //     : null;
-  // }, [data]);
-
-  // const noDistrictDataStates = useMemo(
-  //   () =>
-  //     // Heuristic: All cases are in Unknown
-  //     Object.entries(data || {}).reduce((res, [stateCode, stateData]) => {
-  //       res[stateCode] = !!(
-  //         stateData?.districts &&
-  //         stateData.districts?.[UNKNOWN_DISTRICT_KEY] &&
-  //         PRIMARY_STATISTICS.every(
-  //           (statistic) =>
-  //             getStatistic(stateData, 'total', statistic) ===
-  //             getStatistic(
-  //               stateData.districts[UNKNOWN_DISTRICT_KEY],
-  //               'total',
-  //               statistic,
-  //             ),
-  //         )
-  //       );
-  //       return res;
-  //     }, {}),
-  //   [data],
-  // );
-
-  // const noRegionHighlightedDistrictData =
-  //   regionHighlighted?.stateCode &&
-  //   regionHighlighted?.districtName &&
-  //   regionHighlighted.districtName !== UNKNOWN_DISTRICT_KEY &&
-  //   noDistrictDataStates[regionHighlighted.stateCode];
-
-  // tabular chart config
-  // const [showAllDistricts, setShowAllDistricts] = useState(false);
-  // const primaryStatistic = MAP_STATISTICS.includes(mapStatistic)
-  //   ? mapStatistic
-  //   : 'confirmed';
-
-  // const trail = useMemo(() => {
-  //   const styles = [];
-  //
-  //   [0, 0, 0, 0].map((element, index) => {
-  //     styles.push({
-  //       animationDelay: `${index * 250}ms`,
-  //     });
-  //     return null;
-  //   });
-  //   return styles;
-  // }, []);
-
-  // const stateCode = 'MH';
-
-  // const stateData = data?.[stateCode];
-
-  // const gridRowCount = useMemo(() => {
-  //   if (!stateData) return;
-  //   const gridColumnCount = window.innerWidth >= 540 ? 3 : 2;
-  //   const districtCount = stateData?.districts
-  //     ? Object.keys(stateData.districts).filter(
-  //       (districtName) => districtName !== 'Unknown',
-  //     ).length
-  //     : 0;
-  //   const gridRowCount = Math.ceil(districtCount / gridColumnCount);
-  //   return gridRowCount;
-  // }, [stateData]);
-
-  // const noDistrictData = useMemo(() => {
-  //   // Heuristic: All cases are in Unknown
-  //   return !!(
-  //     stateData?.districts &&
-  //     stateData.districts?.[UNKNOWN_DISTRICT_KEY] &&
-  //     PRIMARY_STATISTICS.every(
-  //       (statistic) =>
-  //         getStatistic(stateData, 'total', statistic) ===
-  //         getStatistic(
-  //           stateData.districts[UNKNOWN_DISTRICT_KEY],
-  //           'total',
-  //           statistic,
-  //         ),
-  //     )
-  //   );
-  // }, [stateData]);
-
-  // const districts = Object.keys(
-  //   ((!noDistrictData || !statisticConfig.hasPrimary) &&
-  //     stateData?.districts) ||
-  //   {},
-  // );
-
-  // const handleSort = (districtNameA, districtNameB) => {
-  //   const districtA = stateData.districts[districtNameA];
-  //   const districtB = stateData.districts[districtNameB];
-  //   return (
-  //     getStatistic(districtB, 'total', mapStatistic) -
-  //     getStatistic(districtA, 'total', mapStatistic)
-  //   );
-  // };
-
-  // const lookback = showAllDistricts ? (window.innerWidth >= 540 ? 10 : 8) : 6;
-
-  // const {error: timeseriesResponseError} = useSWR(
-  //   `${DATA_API_ROOT}/timeseries-${stateCode}.min.json`,
-  //   fetcher,
-  //   {
-  //     revalidateOnMount: true,
-  //     refreshInterval: 100000,
-  //   },
-  // );
-
-  // const toggleShowAllDistricts = () => {
-  //   setShowAllDistricts(!showAllDistricts);
-  // };
-
-  //CARDS SETUP
 
   const [cardsData, setCardsData] = useState();
   const [symbolSectorStats, setSymbolSectorStats] = useState(null);
@@ -231,7 +108,7 @@ function Home() {
   useEffect(() => {
 
     // if (!dates) {
-      fetch('https://www.finlytica.com/options-flow')
+      fetch(`https://www.finlytica.com/options-flow?${symbol ? `symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
         .then(res => res.json())
         .then(data => {
           const dates = data.map(dataItem => dataItem.created_date);
@@ -243,9 +120,9 @@ function Home() {
 
     // }
 
-    if (!cardsData || !symbolSectorStats) {
+    // if (!cardsData || !symbolSectorStats) {
 
-      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01&symbol=${symbol}`)
+      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
         .then(res => res.json())
         .then(res => {
           const data = res.data;
@@ -289,57 +166,26 @@ function Home() {
                   percentage: data.putoipercent,
                 };
               }
-              // case 4: {
-              //   return {
-              //     id: 4,
-              //     name: 'CALL PREMIUM',
-              //     total: data.totalcallpremium,
-              //     percentage: data.callpremiumpercent,
-              //   };
-              // }
-              // case 5: {
-              //   return {
-              //     id: 5,
-              //     name: 'PUT PREMIUM',
-              //     total: data.totalputpremium,
-              //     percentage: data.putpremiumpercent,
-              //   };
-              // }
-              // case 6: {
-              //   return {
-              //     id: 6,
-              //     name: 'TOTAL ORDER VOLUME',
-              //     total: data.totalcount,
-              //     percentage: '',
-              //   };
-              // }
-              // case 7: {
-              //   return {
-              //     id: 7,
-              //     name: 'TOTAL PREMIUM VOLUME',
-              //     total: data.totalpremium,
-              //     percentage: '',
-              //   };
-              // }
+
             }
           });
 
-          if (!symbolSectorStats) {
+          // if (!symbolSectorStats) {
             setSymbolSectorStats(data);
-          }
+          // }
 
-          if (!cardsData) {
+          // if (!cardsData) {
             setCardsData(cardsDataArr);
-          }
+          // }
 
 
           // console.log(cardsDataArr, 'cards data array');
 
         });
 
-    }
+    // }
 
-  }, []);
+  }, [symbol,sector]);
 
   return (
     <>
@@ -355,10 +201,10 @@ function Home() {
         <div className={classnames('home-left')}>
           <div className='header'>
             <Suspense fallback={<div />}>
-              <Search />
+              <Search symbolHandler={symbolHandler} sectorHandler={sectorHandler} />
             </Suspense>
 
-            {/*{!data && !timeseries && <div style={{height: '60rem'}} />}*/}
+
 
             <>
               {/*{!timeseries && <div style={{minHeight: '61px'}} />}*/}
@@ -388,17 +234,7 @@ function Home() {
               </Suspense>
             )}
 
-            {/*<>*/}
-            {/*  {!timeseries && <div style={{height: '123px'}} />}*/}
-            {/*  {timeseries && (*/}
-            {/*    <Suspense fallback={<div style={{height: '123px'}} />}>*/}
-            {/*      <Minigraphs*/}
-            {/*        timeseries={timeseries['TT']?.dates}*/}
-            {/*        {...{date}}*/}
-            {/*      />*/}
-            {/*    </Suspense>*/}
-            {/*  )}*/}
-            {/*</>*/}
+
           </div>
 
           <div style={{height: '8rem'}} />
@@ -589,6 +425,10 @@ function Home() {
               <Table
                 {...{
                   data,
+                  symbol,
+                  sector,
+                  symbolHandler,
+                  sectorHandler,
                   // regionHighlighted,
                   // setRegionHighlighted,
                   expandTable,
@@ -628,4 +468,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default SymbolPage;

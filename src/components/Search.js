@@ -61,23 +61,8 @@ const suggestions = [
   'Alappuzha',
 ];
 
-const districtSuggestions = [
-  'Madurai',
-  'Ganjam',
-  'Alappuzha',
-  'Mumbai',
-  'Chennai',
-];
 
-const stateSuggestions = [
-  'Andhra Pradesh',
-  'Karnataka',
-  'Gujarat',
-  'West Bengal',
-  'Ladakh',
-];
-
-function Search() {
+function Search({sectorHandler,symbolHandler}) {
 
   const pathname = window.location.pathname;
 
@@ -738,7 +723,7 @@ function Search() {
   return (
     <div className='Search'>
       <label className='fadeInUp' style={trail[0]}>
-        {t('Search symbol or sector')}
+        {'Search symbol or sector'}
       </label>
       <div className='line fadeInUp' style={trail[1]}></div>
 
@@ -2111,6 +2096,11 @@ function Search() {
                           new Event('input', {bubbles: true}),
                         );
                       }}
+                      onClick={() => {
+                        symbolHandler(suggestion);
+                        sectorHandler(null);
+                        setExpand(false);
+                      }}
                     >
                       {suggestion}
                     </h4>
@@ -2132,6 +2122,11 @@ function Search() {
                         searchInput.current.dispatchEvent(
                           new Event('input', {bubbles: true}),
                         );
+                      }}
+                      onClick={() => {
+                        setExpand(false);
+                        symbolHandler(null);
+                        sectorHandler(suggestion);
                       }}
                     >
                       {suggestion}

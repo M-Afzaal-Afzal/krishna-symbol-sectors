@@ -60,11 +60,11 @@ function Navbar({pages, showLanguageSwitcher, setShowLanguageSwitcher}) {
     <animated.div className='Navbar' {...{style}}>
       <div className='navbar-left' >
 
-        <Box as={'a'} href={'https://mafzaalafzal.substack.com/subscribe'}>
-          {/*{'Subscribe'}*/}
-          <Rss/>
-          {/*{darkMode.value ? <Sun color={'#ffc107'} /> : <Moon />}*/}
-        </Box>
+        {/*<Box as={'a'} href={'https://mafzaalafzal.substack.com/subscribe'}>*/}
+        {/*  /!*{'Subscribe'}*!/*/}
+        {/*  <Rss/>*/}
+        {/*  /!*{darkMode.value ? <Sun color={'#ffc107'} /> : <Moon />}*!/*/}
+        {/*</Box>*/}
       </div>
 
       <div className='navbar-middle'>
@@ -91,33 +91,44 @@ function Navbar({pages, showLanguageSwitcher, setShowLanguageSwitcher}) {
                 <Home {...activeNavIcon('/')} />
               </span>
             </Link>
-            <Link to='/'>
-              <span>
-                <Book onClick={() => {
-                  loginWithRedirect()
-                    .then((res) => {
-                      console.log(res);
-                    })
-                    .catch(err => {
-                      console.log(err);
-                    });
-                }}
-                      {...activeNavIcon('/')} />
-              </span>
-            </Link>
+            {/*<Link to='/'>*/}
+            {/*  <span>*/}
+                {/*<Book onClick={() => {*/}
+                {/*  loginWithRedirect()*/}
+                {/*    .then((res) => {*/}
+                {/*      console.log(res);*/}
+                {/*    })*/}
+                {/*    .catch(err => {*/}
+                {/*      console.log(err);*/}
+                {/*    });*/}
+                {/*}}*/}
+                {/*      {...activeNavIcon('/')}*/}
+                {/*/>*/}
+            {/*  </span>*/}
+            {/*</Link>*/}
             <Link to='/alert'>
               <span>
                 <HelpCircle {...activeNavIcon('/alert')} />
               </span>
             </Link>
-            <Link to='/resources'>
-              <span>
-                <Phone {...activeNavIcon('/resources')} />
-              </span>
-            </Link>
+            {/*<Link to='/resources'>*/}
+            {/*  <span>*/}
+            {/*    <Phone {...activeNavIcon('/resources')} />*/}
+            {/*  </span>*/}
+            {/*</Link>*/}
             <span>
               <SunMoon {...{darkMode}} />
             </span>
+
+          {/*  todo add the icon there   */}
+            <span>
+            <Box as={'a'} href={'https://mafzaalafzal.substack.com/subscribe'}>
+              {/*{'Subscribe'}*/}
+              <Rss/>
+              {/*{darkMode.value ? <Sun color={'#ffc107'} /> : <Moon />}*/}
+            </Box>
+            </span>
+
           </>
         )}
       </div>

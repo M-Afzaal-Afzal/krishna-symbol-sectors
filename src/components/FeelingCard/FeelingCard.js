@@ -114,11 +114,11 @@ const FeelingCard = () => {
 
   const [goodPercentageForState,setGoodPercentageForState] = useState(0);
 
-  console.log(goodPercentageForState,'good percentage for state');
+  // console.log(goodPercentageForState,'good percentage for state');
 
   useEffect(() => {
 
-    console.log(stateRatingData,'state rating data , ---------------------------------------');
+    // console.log(stateRatingData,'state rating data , ---------------------------------------');
 
     if(!goodPercentageForState && stateRatingData && symbol) {
       const unitPercentageofState = 100 / (stateRatingData.happy + stateRatingData.sad);
@@ -300,7 +300,7 @@ const FeelingCard = () => {
     const reaction = localStorage.getItem('reaction');
     const reactionDate = localStorage.getItem('rcDate');
 
-    console.log(reaction, reactionDate);
+    // console.log(reaction, reactionDate);
 
     if (!token || (token && time >= tokenExpiryTime)) {
       client.post('/auth/local', {
@@ -337,7 +337,7 @@ const FeelingCard = () => {
 
               setTopVolumes(topVolume);
 
-              console.log('top volumes are these', topVolume);
+              // console.log('top volumes are these', topVolume);
 
               const availableVolumes = Object.entries(topVolume).map(([key, value]) => {
                 return key;
@@ -345,7 +345,7 @@ const FeelingCard = () => {
 
               setAvailableVolumes(availableVolumes);
 
-              console.log(availableVolumes, 'available volumes are there');
+              // console.log(availableVolumes, 'available volumes are there');
 
               if (!selectedVolume) {
                 setSelectedVolume(availableVolumes[0]);
@@ -357,7 +357,7 @@ const FeelingCard = () => {
 
               setSelectedTopVolumeData(structuredSelectedTopVolume);
 
-              console.log(structuredSelectedTopVolume, 'this is top volume data to show');
+              // console.log(structuredSelectedTopVolume, 'this is top volume data to show');
 
 
             });
@@ -379,7 +379,7 @@ const FeelingCard = () => {
 
           setTopVolumes(topVolume);
 
-          console.log('top volumes are these', topVolume);
+          // console.log('top volumes are these', topVolume);
 
           const availableVolumes = Object.entries(topVolume).map(([key, value]) => {
             return key;
@@ -388,7 +388,7 @@ const FeelingCard = () => {
 
           setAvailableVolumes(availableVolumes);
 
-          console.log(availableVolumes, 'available volumes are there');
+          // console.log(availableVolumes, 'available volumes are there');
 
           if (!selectedVolume) {
             setSelectedVolume(availableVolumes[0]);
@@ -401,7 +401,7 @@ const FeelingCard = () => {
 
           setSelectedTopVolumeData(structuredSelectedTopVolume);
 
-          console.log(structuredSelectedTopVolume, 'this is top volume data to show');
+          // console.log(structuredSelectedTopVolume, 'this is top volume data to show');
 
         })
         .catch(err => {
@@ -413,7 +413,7 @@ const FeelingCard = () => {
 
   }, [selectedDays, tokenExpiryTime]);
 
-  console.log(( (+reactionDate < todayDate)),'here is some stuff to check');
+  // console.log(( (+reactionDate < todayDate)),'here is some stuff to check');
 
   // console.log(symbol,'symbol related data is there');
   // console.log(symbol, "Symbol is there janab ########################################" ,((!reactionToSymbol) || (reactionToSymbol && (reactionToSymbolDate < todayDate))));
