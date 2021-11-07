@@ -53,12 +53,10 @@ import {parseParams} from '../utils/commonFunctions';
 
 
 const suggestions = [
-  'Madurai',
-  'Karnataka',
-  'Ladakh',
-  'Mumbai',
-  'Andhra Pradesh',
-  'Alappuzha',
+ 'TSLA',
+  'MSFT',
+  'AAPL',
+  'AMD',
 ];
 
 
@@ -2212,6 +2210,7 @@ function Search({sectorHandler, symbolHandler}) {
                         symbolHandler(suggestion);
                         sectorHandler(null);
                         setExpand(false);
+                        history.replace(`/symbol/${suggestion}`)
                       }}
                     >
                       {suggestion}

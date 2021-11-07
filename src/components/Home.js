@@ -56,6 +56,10 @@ const Table = lazy(() => retry(() => import('./Table')));
 
 function Home() {
 
+
+  const [date, setDate] = useState('');
+  const [dates, setDates] = useState([]);
+
   const [symbol,setSymbol] = useState(null);
   const [sector,setSector] = useState(null);
 
@@ -85,8 +89,6 @@ function Home() {
   );
   // const [mapView, setMapView] = useLocalStorage('mapView', MAP_VIEWS.DISTRICTS);
 
-  const [date, setDate] = useState('');
-  const [dates, setDates] = useState([]);
   // const location = useLocation();
 
   // const {data: timeseries} = useStickySWR(
@@ -141,10 +143,10 @@ function Home() {
 
   useEffect(() => {
 
-      fetch(`https://www.finlytica.com/options-flow?${symbol ? `symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
+      fetch(`https://www.finlytica.com/options-flow-summary-date?start_date=2021-07-28&end_date=2021-09-01`)
         .then(res => res.json())
         .then(data => {
-          const dates = data.map(dataItem => dataItem.created_date);
+          const dates = Object.keys(data);
 
           // console.log(dates,'dates from outside');
 
@@ -154,7 +156,7 @@ function Home() {
           }
         });
 
-      fetch(`https://www.finlytica.com/options-flow-summary-stats?start_date=2021-07-28&end_date=2021-08-01${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
+      fetch(`https://www.finlytica.com/options-flow-summary-stats?${date ? `start_date=${date}&end_date=${date}` : "days=90"}${symbol ? `&symbol=${symbol}` : ''}${sector ? `&sector=${sector}` : ''}`)
         .then(res => res.json())
         .then(res => {
           const data = res.data;
@@ -242,7 +244,7 @@ function Home() {
         });
 
 
-  }, [symbol,sector]);
+  }, [symbol,sector,date]);
 
   return (
     <>

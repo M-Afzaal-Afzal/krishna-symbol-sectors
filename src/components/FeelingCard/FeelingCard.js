@@ -428,7 +428,7 @@ const FeelingCard = () => {
               <>
                 <Heading fontFamily={'archia, sans-serif'} color={value ? '#fff' : 'gray.500'} fontWeight={400}
                          fontSize={'1.3rem !important'} textAlign={'center'}>
-                  How do you feel about celsius network today?
+                  How do you feel about {useParams()?.id ? useParams().id : 'market'} today?
                 </Heading>
 
                 <HStack justifyContent={'center'} mt={8} spacing={8}>
@@ -456,7 +456,7 @@ const FeelingCard = () => {
               <Box px={'1rem'}>
 
                 <Box fontSize={'22px'} pb={'.4rem'} fontWeight={'bold'} color={value ? '' : ''}>
-                  How You're doing
+                  Market
                 </Box>
 
 
@@ -550,7 +550,7 @@ const FeelingCard = () => {
               <>
                 <Heading fontFamily={'archia, sans-serif'} color={value ? '#fff' : 'gray.500'} fontWeight={400}
                          fontSize={'1.3rem !important'} textAlign={'center'}>
-                  How do you feel about celsius network today?
+                  How do you feel about {useParams()?.id ? useParams().id : 'market'} today?
                 </Heading>
 
                 <HStack justifyContent={'center'} mt={8} spacing={8}>
@@ -578,7 +578,7 @@ const FeelingCard = () => {
               <Box px={'1rem'}>
 
                 <Box fontSize={'22px'} pb={'.4rem'} fontWeight={'bold'} color={value ? '' : ''}>
-                  How You're doing
+                  {useParams().id} Sentiment Today
                 </Box>
 
 
@@ -665,130 +665,130 @@ const FeelingCard = () => {
 
       </Box>
 
-      <Box bg={!value ? '#F6F6F7' : '#161625'} py={'2rem'} px={'1.5rem'} w={'100%'}>
-        <Heading fontFamily={'archia, sans-serif'} display={'flex'} alignItems={'center'} fontSize={'26px !important'}>
-          Top&nbsp;
-          <Box as={'button'}
-               style={{
-                 color: '#0066FF',
-                 position: 'relative',
-                 fontWeight: 'bold',
-                 display: 'flex',
-                 justifyContent: 'center',
-               }}>
-            {selectedVolume} <FaChevronDown onClick={volumesVisibleHandler}
-                                            style={{marginTop: '1rem', marginLeft: '.3rem'}}
-                                            size={15}
-                                            color={'#0066FF'} />
+      {/*<Box bg={!value ? '#F6F6F7' : '#161625'} py={'2rem'} px={'1.5rem'} w={'100%'}>*/}
+        {/*<Heading fontFamily={'archia, sans-serif'} display={'flex'} alignItems={'center'} fontSize={'26px !important'}>*/}
+        {/*  Top&nbsp;*/}
+        {/*  <Box as={'button'}*/}
+        {/*       style={{*/}
+        {/*         color: '#0066FF',*/}
+        {/*         position: 'relative',*/}
+        {/*         fontWeight: 'bold',*/}
+        {/*         display: 'flex',*/}
+        {/*         justifyContent: 'center',*/}
+        {/*       }}>*/}
+        {/*    {selectedVolume} <FaChevronDown onClick={volumesVisibleHandler}*/}
+        {/*                                    style={{marginTop: '1rem', marginLeft: '.3rem'}}*/}
+        {/*                                    size={15}*/}
+        {/*                                    color={'#0066FF'} />*/}
 
-            {
-              isVolumesVisible && (
-                <Box borderRadius={'lg'} top={50} left={'50%'} transform={'translateX(-50%)'}
-                     bg={'#fff'} zIndex={100} pos={'absolute'} width={'11rem'}
-                     padding={'1rem'}
+        {/*    {*/}
+        {/*      isVolumesVisible && (*/}
+        {/*        <Box borderRadius={'lg'} top={50} left={'50%'} transform={'translateX(-50%)'}*/}
+        {/*             bg={'#fff'} zIndex={100} pos={'absolute'} width={'11rem'}*/}
+        {/*             padding={'1rem'}*/}
 
-                  // height={'10rem'}
-                >
-                  {
-                    availableVolumes.map((volume, index) => (
-                      <Button
-                        borderRadius={'lg'}
-                        onClick={selectedVolumesHandler.bind(this, volume)}
-                        // bg={ }
-                        fullWidth={true} key={index}
-                        style={{
-                          fontWeight: 'bold',
-                          background: volume === selectedVolume ? '#eee' : '',
-                        }}
-                      >
-                        {volume}
-                      </Button>
-                    ))
-                  }
+        {/*          // height={'10rem'}*/}
+        {/*        >*/}
+        {/*          {*/}
+        {/*            availableVolumes.map((volume, index) => (*/}
+        {/*              <Button*/}
+        {/*                borderRadius={'lg'}*/}
+        {/*                onClick={selectedVolumesHandler.bind(this, volume)}*/}
+        {/*                // bg={ }*/}
+        {/*                fullWidth={true} key={index}*/}
+        {/*                style={{*/}
+        {/*                  fontWeight: 'bold',*/}
+        {/*                  background: volume === selectedVolume ? '#eee' : '',*/}
+        {/*                }}*/}
+        {/*              >*/}
+        {/*                {volume}*/}
+        {/*              </Button>*/}
+        {/*            ))*/}
+        {/*          }*/}
 
-                </Box>
+        {/*        </Box>*/}
 
-              )
-            }
+        {/*      )*/}
+        {/*    }*/}
 
-            &nbsp;
-          </Box>
-          in&nbsp;
-          <Box as={'button'}
-               style={{
-                 color: '#0066FF',
-                 position: 'relative',
-                 fontWeight: 'bold',
-                 display: 'flex',
-                 justifyContent: 'center',
-               }}
-          >
-            {selectedDays} day <FaChevronDown onClick={daysVisibleHandler}
-                                              style={{marginTop: '1rem', marginLeft: '.3rem'}} size={15}
-                                              color={'#0066FF'} />
+        {/*    &nbsp;*/}
+        {/*  </Box>*/}
+        {/*  in&nbsp;*/}
+        {/*  <Box as={'button'}*/}
+        {/*       style={{*/}
+        {/*         color: '#0066FF',*/}
+        {/*         position: 'relative',*/}
+        {/*         fontWeight: 'bold',*/}
+        {/*         display: 'flex',*/}
+        {/*         justifyContent: 'center',*/}
+        {/*       }}*/}
+        {/*  >*/}
+        {/*    {selectedDays} day <FaChevronDown onClick={daysVisibleHandler}*/}
+        {/*                                      style={{marginTop: '1rem', marginLeft: '.3rem'}} size={15}*/}
+        {/*                                      color={'#0066FF'} />*/}
 
-            {/* days options buttons*/}
+        {/*    /!* days options buttons*!/*/}
 
-            {
-              isDaysVisible && (
-                <Box borderRadius={'lg'} top={50} left={'50%'} transform={'translateX(-50%)'}
-                     bg={'#fff'} zIndex={100} pos={'absolute'} width={'11rem'}
-                     padding={'1rem'}
-                  // height={'10rem'}
-                >
-                  {
-                    selectedNumberOfDaysArray.map((days, index) => (
-                      <Button
-                        borderRadius={'lg'}
-                        onClick={selectedDaysHandler.bind(this, days)}
-                        // bg={ }
+        {/*    {*/}
+        {/*      isDaysVisible && (*/}
+        {/*        <Box borderRadius={'lg'} top={50} left={'50%'} transform={'translateX(-50%)'}*/}
+        {/*             bg={'#fff'} zIndex={100} pos={'absolute'} width={'11rem'}*/}
+        {/*             padding={'1rem'}*/}
+        {/*          // height={'10rem'}*/}
+        {/*        >*/}
+        {/*          {*/}
+        {/*            selectedNumberOfDaysArray.map((days, index) => (*/}
+        {/*              <Button*/}
+        {/*                borderRadius={'lg'}*/}
+        {/*                onClick={selectedDaysHandler.bind(this, days)}*/}
+        {/*                // bg={ }*/}
 
-                        fullWidth={true} key={index}
-                        style={{
-                          background: days === selectedDays ? '#eee' : '',
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        {days}
-                      </Button>
-                    ))
-                  }
+        {/*                fullWidth={true} key={index}*/}
+        {/*                style={{*/}
+        {/*                  background: days === selectedDays ? '#eee' : '',*/}
+        {/*                  fontWeight: 'bold',*/}
+        {/*                }}*/}
+        {/*              >*/}
+        {/*                {days}*/}
+        {/*              </Button>*/}
+        {/*            ))*/}
+        {/*          }*/}
 
-                </Box>
+        {/*        </Box>*/}
 
-              )
-            }
-          </Box>
-          &nbsp;
+        {/*      )*/}
+        {/*    }*/}
+        {/*  </Box>*/}
+        {/*  &nbsp;*/}
 
-        </Heading>
+        {/*</Heading>*/}
 
-        <Box display={'grid'} gridRowGap={'2.3rem'} gridTemplateColumns={'1fr 1fr'} justifyItems={'start'} mt={'2rem'}>
+      {/*  <Box display={'grid'} gridRowGap={'2.3rem'} gridTemplateColumns={'1fr 1fr'} justifyItems={'start'} mt={'2rem'}>*/}
 
-          {/* SINGLE ENTITY*/}
+      {/*    /!* SINGLE ENTITY*!/*/}
 
-          {
-            selectedTopVolumeData.map(({name, imageUrl, qty}, index) => (
-              <ProfileEntity
-                index={index + 1}
-                name={name}
-                price={qty}
-                imgUrl={imageUrl}
-              />
-            ))
-          }
+      {/*    {*/}
+      {/*      selectedTopVolumeData.map(({name, imageUrl, qty}, index) => (*/}
+      {/*        <ProfileEntity*/}
+      {/*          index={index + 1}*/}
+      {/*          name={name}*/}
+      {/*          price={qty}*/}
+      {/*          imgUrl={imageUrl}*/}
+      {/*        />*/}
+      {/*      ))*/}
+      {/*    }*/}
 
-        </Box>
+      {/*  </Box>*/}
 
-        {
-          !selectedTopVolumeData.length && (
-            <Text fontSize={'1.3rem'} textAlign={'center'}>
-              Nothing is available in this range
-            </Text>
-          )
-        }
+      {/*  {*/}
+      {/*    !selectedTopVolumeData.length && (*/}
+      {/*      <Text fontSize={'1.3rem'} textAlign={'center'}>*/}
+      {/*        Nothing is available in this range*/}
+      {/*      </Text>*/}
+      {/*    )*/}
+      {/*  }*/}
 
-      </Box>
+      {/*</Box>*/}
 
 
     </Box>
