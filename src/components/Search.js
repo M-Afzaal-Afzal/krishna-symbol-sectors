@@ -11,7 +11,7 @@ import produce from 'immer';
 import {memo, useState, useEffect, useMemo, useCallback, useRef} from 'react';
 import * as Icon from 'react-feather';
 import {useTranslation} from 'react-i18next';
-import {Link, useHistory} from 'react-router-dom';
+import {Link, useHistory, useParams} from 'react-router-dom';
 import {useDebounce, useKeyPressEvent, useUpdateEffect} from 'react-use';
 import {
   Button, Flex, Heading,
@@ -62,7 +62,7 @@ const suggestions = [
 ];
 
 
-function Search({sectorHandler,symbolHandler}) {
+function Search({sectorHandler, symbolHandler}) {
 
   const pathname = window.location.pathname;
 
@@ -161,112 +161,6 @@ function Search({sectorHandler,symbolHandler}) {
   const searchInput = useRef(null);
   const {t} = useTranslation();
 
-  const [engine, setEngine] = useState(null);
-  const [districtEngine, setDistrictEngine] = useState(null);
-
-  useUpdateEffect(() => {
-    import('corejs-typeahead').then((Bloodhound) => {
-      setEngine(
-        // eslint-disable-next-line
-        new Bloodhound.default({
-          initialize: true,
-          local: STATE_CODES_ARRAY.filter(
-            ({code}) => code !== UNASSIGNED_STATE_CODE,
-          ),
-          queryTokenizer: Bloodhound.default.tokenizers.whitespace,
-          datumTokenizer: Bloodhound.default.tokenizers.obj.whitespace('name'),
-        }),
-      );
-
-      setDistrictEngine(
-        // eslint-disable-next-line
-        new Bloodhound.default({
-          initialize: true,
-          limit: 5,
-          queryTokenizer: Bloodhound.default.tokenizers.whitespace,
-          datumTokenizer:
-            Bloodhound.default.tokenizers.obj.whitespace('district'),
-          indexRemote: true,
-          remote: {
-            url: `${API_DOMAIN}/state_district_wise.json`,
-            transform: function(response) {
-              const districts = [];
-              Object.keys(response)
-                .filter((stateName) => stateName !== 'State Unassigned')
-                .map((stateName) => {
-                  const districtData = response[stateName].districtData;
-                  Object.keys(districtData)
-                    .filter(
-                      (districtName) => districtName !== UNKNOWN_DISTRICT_KEY,
-                    )
-                    .map((districtName) => {
-                      return districts.push({
-                        district: districtName,
-                        state: stateName,
-                      });
-                    });
-                  return null;
-                });
-              return districts;
-            },
-          },
-        }),
-      );
-    });
-  }, [expand]);
-
-  const handleSearch = useCallback(
-    (searchInput) => {
-      if (!engine) return null;
-      const results = [];
-
-      const sync = (datums) => {
-        datums.map((result, index) => {
-          const stateObj = {
-            name: result.name,
-            type: 'state',
-            route: result.code,
-          };
-          results.push(stateObj);
-          return null;
-        });
-      };
-
-      const districtSync = (datums) => {
-        datums.slice(0, 3).map((result, index) => {
-          const districtObj = {
-            name: result.district,
-            type: 'district',
-            route: STATE_CODES[result.state],
-          };
-          results.push(districtObj);
-          return null;
-        });
-
-        setResults([...results]);
-      };
-
-      engine.search(searchInput, sync);
-      districtEngine.search(searchInput, districtSync);
-    },
-    [districtEngine, engine],
-  );
-
-  useDebounce(
-    () => {
-      if (searchValue) {
-        handleSearch(searchValue);
-      } else {
-        setResults(
-          produce(results, (draftResults) => {
-            draftResults.splice(0);
-          }),
-        );
-      }
-    },
-    100,
-    [searchValue],
-  );
 
   function setNativeValue(element, value) {
     const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
@@ -398,8 +292,9 @@ function Search({sectorHandler,symbolHandler}) {
   const mostlySearchedCapRange = [[100000, 150000], [150000, 250000], [250000, 350000], [350000, 550000], [550000, 850000], [850000, 1000000]];
   const mostlySearcheddaysOfExpirationRange = [[1, 3], [3, 7], [7, 15], [15, 30]];
   const mostlySearchedOpenInterestRange = [[100, 500], [500, 800], [800, 2500], [2500, 5000], [5000, 8000], [8000, 10000]];
-  const [optionType, setOptionType] = useState('calls');
-  const [optionsType, setOptionsType] = useState('sweeps');
+  const [optionType, setOptionType] = useState('call');
+  const [optionsType, setOptionsType] = useState('sweep');
+  const [expirationDate, setExpirationDate] = useState(Date.now());
 
   // SECOND PAGE ACCORDION CONFIG
   const [callVolumeRange, setCallVolumeRange] = useState([30, 60]);
@@ -420,7 +315,7 @@ function Search({sectorHandler,symbolHandler}) {
   const mostlySearchedTotalPutOiRanges = [[100, 200], [200, 300], [300, 500], [500, 700], [700, 850], [850, 1000]];
 
 
-  // Queries
+  // Queries 1st page
   const [totalCallVolumeMax, setTotalCallVolumeMax] = useQueryParam('totalcallvolume_lte', NumberParam);
   const [totalCallVolumeMin, setTotalCallVolumeMin] = useQueryParam('totalcallvolume_gte', NumberParam);
 
@@ -469,21 +364,66 @@ function Search({sectorHandler,symbolHandler}) {
   // const [totalPremiumMax,setTotalPremiumMax] = useQueryParam('totalpremium_lte',NumberParam);
   // const [totalPremiumMin,setTotalPremiumMin] = useQueryParam('totalpremium_gte',NumberParam);
 
+  // Queries 2nd page
+  const [priceMax, setPriceMax] = useQueryParam('price_lte', NumberParam);
+  const [priceMin, setPriceMin] = useQueryParam('price_gte', NumberParam);
+
+  const [daysOfExpirationMax, setDaysOfExpirationMax] = useQueryParam('price_lte', NumberParam);
+  const [daysOfExpirationMin, setDaysOfExpirationMin] = useQueryParam('price_gte', NumberParam);
+
+  const [optionTypeQuery, setOptionTypeQuery] = useQueryParam('call_put', StringParam);
+
+  const [optionsTypeQuery, setOptionsTypeQuery] = useQueryParam('type', StringParam);
+
+
+  const [premiumRangeMax, setPremiumRangeMax] = useQueryParam('premium_lte', NumberParam);
+  const [premiumRangeMin, setPremiumRangeMin] = useQueryParam('premium_gte', NumberParam);
+
+  const [volumeMax, setVolumeMax] = useQueryParam('volume_lte', NumberParam);
+  const [volumeMin, setVolumeMin] = useQueryParam('volume_gte', NumberParam);
+
+  const [impliedVolatilityMax, setImpliedVolatilityMax] = useQueryParam('implied_volatility_lte', NumberParam);
+  const [impliedVolatilityMin, setImpliedVolatilityMin] = useQueryParam('implied_volatility_gte', NumberParam);
+
+  const [marketCapMax, setMarketCapMax] = useQueryParam('mkt_cap_lte', NumberParam);
+  const [marketCapMin, setMarketCapMin] = useQueryParam('mkt_cap_gte', NumberParam);
+
+  const [openInterestMax, setOpenInterestMax] = useQueryParam('oi_lte', NumberParam);
+  const [openInterestMin, setOpenInterestMin] = useQueryParam('oi_gte', NumberParam);
+
+  const [expirationDateQuery, setExpirationDateQuery] = useQueryParam('expiration_date', NumberParam);
+
   // FIRST PAGE ACCORDION FUNCTIONS
 
   const onMinPriceChange = (val) => {
+
+    setPriceMin(val);
+
     setPriceRange((prevRange) => {
       return [val, prevRange[1]];
     });
   };
 
   const onMaxPriceChange = (val) => {
+    setPriceMax(val);
     setPriceRange((prevRange) => {
       return [prevRange[0], val];
     });
   };
 
+  const onOptionTypeChange = (val) => {
+    setOptionTypeQuery(val);
+    setOptionType(val);
+  };
+
+  const onOptionsTypeChange = (val) => {
+    setOptionsTypeQuery(val);
+    setOptionsType(val);
+  };
+
   const onMinPremiumRangeChange = (val) => {
+
+    setPremiumRangeMin(val);
 
     setPremiumRange((prevPremiumRange) => {
       return [val, prevPremiumRange[1]];
@@ -491,48 +431,65 @@ function Search({sectorHandler,symbolHandler}) {
   };
 
   const onMaxPremiumRangeChange = (val) => {
+
+    setPremiumRangeMax(val);
+
     setPremiumRange((prevRange) => {
       return [prevRange[0], val];
     });
   };
 
   const onMinVolumeRangeChange = (val) => {
+    setVolumeMin(val);
     setVolumeRange((prevVolume) => {
       return [val, prevVolume[1]];
     });
   };
 
+  const onMaxVolumeRangeChange = (val) => {
+    setVolumeMax(val);
+    setVolumeRange((prevVolume) => {
+      return [prevVolume[0], val];
+    });
+  };
+
   const onMaxImpliedVolatilityRangeChange = (val) => {
+    setImpliedVolatilityMax(val);
     setImpliedVolatilityRange((prevVolatility) => {
       return [prevVolatility[0], val];
     });
   };
 
   const onMinImpliedVolatilityRangeChange = (val) => {
+    setImpliedVolatilityMin(val);
     setImpliedVolatilityRange((prevVolatility) => {
       return [val, prevVolatility[1]];
     });
   };
 
   const onMinMarketCapRangeChange = (val) => {
+    setMarketCapMin(val);
     setMarketCapRange((marketCapRange) => {
       return [marketCapRange[0], val];
     });
   };
 
   const onMaxMarketCapRangeChange = (val) => {
+    setMarketCapMax(val);
     setMarketCapRange((marketCapRange) => {
       return [val, marketCapRange[1]];
     });
   };
 
   const onMinOpenInterestRangeChange = (val) => {
+    setOpenInterestMin(val);
     setOpenInterestRange((openInterestRange) => {
       return [openInterestRange[0], val];
     });
   };
 
   const onMaxOpenInterestRangeChange = (val) => {
+    setOpenInterestMax(val);
     setOpenInterestRange((openInterestRange) => {
       return [val, openInterestRange[1]];
     });
@@ -550,11 +507,12 @@ function Search({sectorHandler,symbolHandler}) {
     });
   };
 
-  const onMaxVolumeRangeChange = (val) => {
-    setVolumeRange((prevVolume) => {
-      return [prevVolume[0], val];
-    });
+  const onExpirationDateChange = (e) => {
+    setExpirationDateQuery(e.target.value);
+    setExpirationDate(e.target.value);
+    // console.log(e.target.value);
   };
+
 
   // 2ND PAGE ACCORDION FUNCTIONS
 
@@ -696,6 +654,8 @@ function Search({sectorHandler,symbolHandler}) {
 
   const history = useHistory();
 
+  const params = useParams();
+
   // On Close filters handler
 
   const onCancelFiltersHandler = () => {
@@ -705,10 +665,13 @@ function Search({sectorHandler,symbolHandler}) {
     // deleteParams(window.location.search);
     // Now closing the modal
 
-    // if (!isAppliedFiltersShown) {
+    if (pathname === '/') {
       history.push('/');
       setAppliedFiltersShown(false);
-    // }
+    } else  {
+      history.push(`/symbol/${params?.id}`)
+    }
+
 
     onClose();
   };
@@ -858,7 +821,23 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              OptionType
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+
+                                  OptionType
+                                </Box>
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.call_put && `${appliedFilters.call_put}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -866,17 +845,17 @@ function Search({sectorHandler,symbolHandler}) {
                         <AccordionPanel pb={4}>
 
                           <RadioGroup
-                            onChange={setOptionType}
+                            onChange={onOptionTypeChange}
                             value={optionType}
                           >
                             <VStack alignItems={'flex-start'}>
                               <Radio
-                                value='calls'
+                                value='call'
                               >
                                 Calls
                               </Radio>
                               <Radio
-                                value='puts'
+                                value='put'
                               >
                                 Puts
                               </Radio>
@@ -890,29 +869,44 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Options Type
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  Options Type
+                                </Box>
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.type && `${appliedFilters.type}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
                         </h2>
                         <AccordionPanel pb={4}>
                           <RadioGroup
-                            onChange={setOptionsType}
+                            onChange={onOptionsTypeChange}
                             value={optionsType}
                           >
                             <VStack alignItems={'flex-start'}>
                               <Radio
-                                value='sweeps'
+                                value='sweep'
                               >
                                 Sweeps
                               </Radio>
                               <Radio
-                                value='splits'
+                                value='split'
                               >
                                 Splits
                               </Radio>
                               <Radio
-                                value='blocks'
+                                value='block'
                               >
                                 Block
                               </Radio>
@@ -925,7 +919,25 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Price
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  Price
+                                </Box>
+
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.price_gte && `>= ${appliedFilters.price_gte}`} {' '}
+                                        {appliedFilters.price_lte && `& <= ${appliedFilters.price_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -968,6 +980,8 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(priceRange, 'Price Range');
                                   setPriceRange(priceRange);
+                                  setPriceMin(priceRange[0]);
+                                  setPriceMax(priceRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -996,7 +1010,24 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Premium Range
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  Premium Range
+                                </Box>
+
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.premium_gte && `>= ${appliedFilters.premium_gte}`} {' '}
+                                        {appliedFilters.premium_lte && `& <= ${appliedFilters.premium_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -1040,6 +1071,8 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(premiumRange, 'Premium Range');
                                   setPremiumRange(premiumRange);
+                                  setPremiumRangeMin(premiumRange[0]);
+                                  setPremiumRangeMax(premiumRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -1067,7 +1100,23 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Volume
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  Volume
+                                </Box>
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.volume_gte && `>= ${appliedFilters.volume_gte}`} {' '}
+                                        {appliedFilters.volume_lte && `& <= ${appliedFilters.volume_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -1111,6 +1160,8 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(volumeRange, 'Price Range');
                                   setVolumeRange(volumeRange);
+                                  setVolumeMin(volumeRange[0]);
+                                  setVolumeMax(volumeRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -1139,7 +1190,23 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Implied Volatility
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  Implied Volatility
+                                </Box>
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.implied_volatility_gte && `>= ${appliedFilters.implied_volatility_gte}`} {' '}
+                                        {appliedFilters.implied_volatility_lte && `& <= ${appliedFilters.implied_volatility_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -1184,6 +1251,9 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(volatilityRange, 'Price Range');
                                   setImpliedVolatilityRange(volatilityRange);
+
+                                  setImpliedVolatilityMin(volatilityRange[0]);
+                                  setImpliedVolatilityMax(volatilityRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -1256,7 +1326,23 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              MarketCapRange
+                              <Box display={'flex'} justifyContent={'space-between'}>
+                                <Box>
+                                  MarketCapRange
+                                </Box>
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.mkt_cap_gte && `>= ${appliedFilters.mkt_cap_gte}`} {' '}
+                                        {appliedFilters.mkt_cap_lte && `& <= ${appliedFilters.mkt_cap_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -1303,6 +1389,9 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(capRange, 'Market cap Range');
                                   setMarketCapRange(capRange);
+
+                                  setMarketCapMin(capRange[0]);
+                                  setMarketCapMax(capRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -1331,7 +1420,26 @@ function Search({sectorHandler,symbolHandler}) {
                         <h2>
                           <AccordionButton>
                             <Box flex='1' textAlign='left'>
-                              Open Interest
+                              <Box display={'flex'} justifyContent={'space-between'}>
+
+                                <Box>
+                                  Open Interest
+                                </Box>
+
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.oi_gte && `>= ${appliedFilters.oi_gte}`} {' '}
+                                        {appliedFilters.oi_lte && `& <= ${appliedFilters.oi_lte}`}
+                                      </>
+                                    )
+
+                                  }
+
+                                </Box>
+
+                              </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>
@@ -1378,6 +1486,9 @@ function Search({sectorHandler,symbolHandler}) {
                                 <Box key={index} onClick={() => {
                                   console.log(openInterestRange, 'open interest Range');
                                   setOpenInterestRange(openInterestRange);
+
+                                  setOpenInterestMin(openInterestRange[0]);
+                                  setOpenInterestMax(openInterestRange[1]);
                                 }
                                 } m={1} cursor={'pointer'} as={'button'} borderRadius={'lg'} px={3} py={2}
                                      bg={'#323546'}>
@@ -1412,7 +1523,8 @@ function Search({sectorHandler,symbolHandler}) {
                           </AccordionButton>
                         </h2>
                         <AccordionPanel pb={4}>
-                          <Input style={{color: 'white'}} type={'date'} my={'1rem'}
+                          <Input onChange={onExpirationDateChange} value={expirationDate} style={{color: 'white'}}
+                                 type={'date'} my={'1rem'}
                                  placeholer={'Expiration Date'} />
                         </AccordionPanel>
                       </AccordionItem>
@@ -1948,23 +2060,23 @@ function Search({sectorHandler,symbolHandler}) {
                             <Box flex='1' textAlign='left'>
                               <Box display={'flex'} justifyContent={'space-between'}>
 
-                              <Box>
-                                Total Count
+                                <Box>
+                                  Total Count
+                                </Box>
+
+                                <Box color={'green.300'}>
+                                  {
+                                    isAppliedFiltersShown && (
+                                      <>
+                                        {appliedFilters.totalcount_gte && `>= ${appliedFilters.totalcount_gte}`} {' '}
+                                        {appliedFilters.totalcount_lte && `& <= ${appliedFilters.totalcount_lte}`}
+                                      </>
+                                    )
+
+                                  }
+                                </Box>
+
                               </Box>
-
-                              <Box color={'green.300'}>
-                                {
-                                  isAppliedFiltersShown && (
-                                    <>
-                                      {appliedFilters.totalcount_gte && `>= ${appliedFilters.totalcount_gte}`} {' '}
-                                      {appliedFilters.totalcount_lte && `& <= ${appliedFilters.totalcount_lte}`}
-                                    </>
-                                  )
-
-                                }
-                              </Box>
-
-                            </Box>
                             </Box>
                             <AccordionIcon color={'#515769'} fontSize={32} />
                           </AccordionButton>

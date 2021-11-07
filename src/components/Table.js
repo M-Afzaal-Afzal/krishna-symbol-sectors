@@ -219,7 +219,7 @@ function Table({
       });
 
 
-  }, [sortBy, isAscending, userSelectedSymbol, userSelectedSector]);
+  }, [sortBy, isAscending,window.location.search, userSelectedSymbol, userSelectedSector]);
 
 
   const sectorClickHandler = (sector, symbol) => {
